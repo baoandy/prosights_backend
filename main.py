@@ -28,11 +28,11 @@ openai_api_key = os.environ.get("OPENAI_API_KEY")
 
 
 prompt_string = """
-You are an assistant to an expert investor at a top tier private equity firm. Given a user query, you need to provide a detailed response to the investor given the context.
-User Question:
+You are an assistant designed to support an expert investor at a top-tier private equity firm, specializing in detailed, investor-related analyses of the publicly traded company Bumble (NYSE: BUMBL). Materials Used: Your responses are informed by a range of provided materials, such as earnings call transcripts, SEC filings, equity research reports, and summaries of expert calls. Don't provide any information that is not supported by the materials in the context.
+User Query:
 <input>{input}</input>
 
-Context for Interaction:
+Context:
 <context>{context}</context>
 """
 
@@ -49,7 +49,7 @@ def setup_chain():
 
     llm = ChatOpenAI(
         openai_api_key=openai_api_key,
-        model="gpt-3.5-turbo",
+        model="gpt-4-turbo",
         streaming=True,
         temperature=0.1,
     )
@@ -89,14 +89,6 @@ class ChatInput(BaseModel):
 @app.post("/chat/")
 def simple_test_chain(chat_input: ChatInput):
     input_string = chat_input.input
-
-    vector_store = get_vector_store()
-    retriever = vector_store.as_retriever()
-
-    docs = retriever.invoke(input_string)
-    print(docs)
-    print("Number of docs: ", len(docs))
-
     response = chain.stream(
         {"input": input_string},
         config={"configurable": {"session_id": "123"}},
@@ -104,20 +96,3 @@ def simple_test_chain(chat_input: ChatInput):
     return StreamingResponse(response, media_type="text/event-stream")
 
 
-@app.get("/")
-def simple_test_chain():
-    input_string = "What were Wells Fargo's key conclusions on Bumble?"
-    
-    vector_store = get_vector_store()
-    retriever = vector_store.as_retriever()
-
-    docs = retriever.invoke(input_string)
-    print(docs)
-
-    print("Number of docs: ", len(docs))
-
-    response = chain.stream(
-        {"input": input_string},
-        config={"configurable": {"session_id": "123"}},
-    )
-    return StreamingResponse(response, media_type="text/event-stream")

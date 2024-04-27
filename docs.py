@@ -6,6 +6,7 @@ from langchain_pinecone import PineconeVectorStore
 from langchain_openai import OpenAIEmbeddings
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 import time
+import concurrent.futures
 
 load_dotenv()
 
@@ -14,7 +15,7 @@ openai_embeddings = OpenAIEmbeddings(openai_api_key=os.environ.get("OPENAI_API_K
 
 def load_user_docs():
     start_time = time.time()
-    bumble_path = "bumble/"
+    bumble_path = "files/"
     bumble_loader = PyPDFDirectoryLoader(bumble_path, extract_images=False)
     bumble_docs = bumble_loader.load()
     print("Loaded docs")
@@ -34,8 +35,12 @@ def get_vector_store():
     # Only need to do the below once
     # vector_store.delete(delete_all=True)
     # start_time = time.time()
-    # load_user_docs()
-    # vector_store.add_documents(load_user_docs())
+    # docs = load_user_docs()
+    # partitions = 10
+    # partitioned_docs = [docs[i::partitions] for i in range(partitions)]
+    # with concurrent.futures.ThreadPoolExecutor(max_workers=20) as executor:
+    #     futures = [executor.submit(vector_store.add_documents, partition) for partition in partitioned_docs]
+    #     for future in concurrent.futures.as_completed(futures):
+    #         future.result()
     # print(f"Added docs in {time.time() - start_time} seconds")
-    # print("Added docs")
     return vector_store
