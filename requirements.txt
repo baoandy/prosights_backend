@@ -1,0 +1,11 @@
+fastapi
+uvicorn
+langchain
+langchain-openai
+pinecone-client
+langchain_pinecone
+BeautifulSoup4
+PyGithub
+pypdf
+rapidocr-onnxruntime
+python-dotenv # for development
